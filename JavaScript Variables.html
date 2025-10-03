@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Learning Calculator</title>
+    <style>
+        /* General Body Styling */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #1e3c72, #2a5298); /* Deep blue to lighter blue gradient */
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden; /* Prevents horizontal scrollbar during animations */
+        }
+
+        /* Header Styling and Animation */
+        h1 {
+            margin-bottom: 30px;
+            font-size: 3em; /* Larger, more prominent header */
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); /* Subtle text shadow for depth */
+            animation: fadeInDown 1s ease-out; /* Animation for header on page load */
+        }
+
+        /* Keyframe animation for header fade-in from top */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Logo Container and Styling */
+        .logo-container {
+            margin-bottom: 20px;
+           
+        }
+
+        .logo {
+            max-width: 150px; /* Max width for responsiveness */
+            height: auto;
+            border-radius: 10px; /* Slightly rounded corners for the logo */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Shadow for the logo */
+            animation: bounceIn 1s ease-out; /* Animation for logo on page load */
+        }
+
+        /* Keyframe animation for logo bouncing in */
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0.3);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 1;
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* Navigation Buttons Styling */
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px; /* Space between buttons */
+            margin-bottom: 40px;
+            flex-wrap: wrap; /* Allows buttons to wrap on smaller screens */
+        }
+
+        .nav-button {
+            background-color: #ffcc00; /* Bright yellow button color */
+            padding: 12px 25px;
+            border: none;
+            border-radius: 30px; /* Heavily rounded buttons */
+            font-weight: bold;
+            font-size: 1.1em;
+            cursor: pointer;
+            color: #1e3c72; /* Dark blue text color */
+            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions for hover effects */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Initial shadow */
+        }
+
+        .nav-button:hover {
+            background-color: #e6b800; /* Slightly darker yellow on hover */
+            transform: translateY(-3px) scale(1.02); /* Slight lift and scale effect */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover */
+        }
+
+        /* Card Carousel Container Styling */
+        .card-container-wrapper {
+            position: relative;
+            height: 400px; /* Fixed height to contain the carousel */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px; /* Enables 3D transformations for cards */
+        }
+
+        .card-carousel {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.8s ease-in-out; /* Smooth transition for the entire carousel movement */
+            transform-style: preserve-3d; /* Keeps child elements in 3D space */
+        }
+
+        /* Individual Card Styling and Animations */
+        .card {
+            background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent white background */
+            padding: 20px;
+            border-radius: 15px;
+            width: 300px;
+            min-height: 250px; /* Ensures cards have a consistent height */
+            box-shadow: 3px 3px 15px rgba(0, 0, 0, 0.4); /* Stronger shadow for depth */
+            position: absolute; /* Allows cards to be positioned freely within the carousel */
+            opacity: 0; /* Hidden by default */
+            transform: translateX(0) scale(0.8); /* Initially slightly scaled down */
+            /* Transitions for card animation: transform and opacity for smooth changes,
+               z-index delay ensures layering changes after visual movement */
+            transition: transform 0.8s ease, opacity 0.8s ease, z-index 0.0s 0.8s;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box; /* Include padding and border in the element's total width and height */
+        }
+
+        /* Style for the active (visible) card */
+        .card.active {
+            opacity: 1; /* Fully visible */
+            transform: translateX(0) scale(1); /* Full size and centered */
+            z-index: 10; /* Bring active card to the front */
+            /* z-index transition immediate for active card */
+            transition: transform 0.8s ease, opacity 0.8s ease, z-index 0s;
+        }
+
+        /* Style for cards moved to the side (inactive) */
+        .card.side {
+            opacity: 0.6; /* Slightly transparent */
+            transform: translateX(var(--offset-x)) scale(0.7); /* Scaled down and moved by CSS variable */
+            z-index: 5; /* Behind the active card */
+            pointer-events: none; /* Disable interaction on side cards */
+        }
+
+        /* Input Field Styling */
+        input {
+            width: 80%;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1em;
+            background-color: rgba(255, 255, 255, 0.9); /* Almost opaque white background */
+            color: #333; /* Dark text for readability */
+            transition: all 0.3s ease; /* Smooth transition for focus effect */
+        }
+
+        input::placeholder {
+            color: #888; /* Placeholder text color */
+        }
+
+        input:focus {
+            outline: none; /* Remove default outline */
+            box-shadow: 0 0 0 3px #ffcc00; /* Yellow highlight on focus */
+        }
+
+        /* Inner Button (Calculate) Styling */
+        button {
+            background-color: #ffcc00;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #1e3c72;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #e6b800;
+            transform: scale(1.05); /* Slight scale up on hover */
+        }
+
+        /* Paragraph (Result) Styling */
+        p {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 15px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2); /* Subtle shadow for result text */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="logo-container">
+        <!-- Replace this placeholder with your actual logo image URL -->
+        <img style="border-radius: 100px;" src="Gemini_Generated_Image_gulnozgulnozguln.png" alt="E-Learning Logo" class="logo">
+    </div>
+    <h1>E-Learning Calculator</h1>
+
+    <!-- Navigation buttons at the top -->
+    <div class="nav-buttons">
+        <button class="nav-button" data-target="add">Addition</button>
+        <button class="nav-button" data-target="sub">Subtraction</button>
+        <button class="nav-button" data-target="multi">Multiplication</button>
+        <button class="nav-button" data-target="div">Division</button>
+        <button class="nav-button" data-target="square">Square</button>
+    </div>
+
+    <!-- Container for the card carousel -->
+    <div class="card-container-wrapper">
+        <div class="card-carousel" id="cardCarousel">
+            <!-- Addition Card -->
+            <div class="card" id="card_add" data-card="add">
+                <p>Addition</p>
+                <input type="number" id="num1_add" placeholder="Enter first number">
+                <input type="number" id="num2_add" placeholder="Enter second number">
+                <button onclick="calculateSum()">Add</button>
+                <p id="result_add"></p>
+            </div>
+
+            <!-- Subtraction Card -->
+            <div class="card" id="card_sub" data-card="sub">
+                <p>Subtraction</p>
+                <input type="number" id="num1_sub" placeholder="Enter first number">
+                <input type="number" id="num2_sub" placeholder="Enter second number">
+                <button onclick="calculateDifference()">Subtract</button>
+                <p id="result_sub"></p>
+            </div>
+
+            <!-- Multiplication Card -->
+            <div class="card" id="card_multi" data-card="multi">
+                <p>Multiplication</p>
+                <input type="number" id="num1_multi" placeholder="Enter first number">
+                <input type="number" id="num2_multi" placeholder="Enter second number">
+                <button onclick="calculateProduct()">Multiply</button>
+                <p id="result_multi"></p>
+            </div>
+
+            <!-- Division Card -->
+            <div class="card" id="card_div" data-card="div">
+                <p>Division</p>
+                <input type="number" id="num1_div" placeholder="Enter first number">
+                <input type="number" id="num2_div" placeholder="Enter second number">
+                <button onclick="calculateQuotient()">Divide</button>
+                <p id="result_div"></p>
+            </div>
+
+            <!-- Square Card -->
+            <div class="card" id="card_square" data-card="square">
+                <p>Square</p>
+                <input type="number" id="num_square" placeholder="Enter a number">
+                <button onclick="calculateSquare()">Calculate Square</button>
+                <p id="result_square"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const cardCarousel = document.getElementById('cardCarousel');
+        const navButtons = document.querySelectorAll('.nav-button');
+        const cards = document.querySelectorAll('.card');
+
+        /**
+         * Shows a specific calculation card and positions others to the side,
+         * creating a circular slide show effect.
+         * @param {string} targetCardId - The data-card attribute value of the card to display.
+         */
+        function showCard(targetCardId) {
+            // Remove active and side classes from all cards and reset their offset
+            cards.forEach(card => {
+                card.classList.remove('active', 'side');
+                card.style.setProperty('--offset-x', '0px'); // Reset custom CSS property
+            });
+
+            // Find the card that needs to be active
+            const activeCard = document.querySelector(`.card[data-card="${targetCardId}"]`);
+            if (activeCard) {
+                activeCard.classList.add('active'); // Make the selected card active
+
+                const activeIndex = Array.from(cards).indexOf(activeCard);
+
+                // Position other cards to the sides based on their index relative to the active card
+                cards.forEach((card, index) => {
+                    if (card !== activeCard) {
+                        card.classList.add('side'); // Mark as a side card
+                        const offsetMultiplier = (index - activeIndex); // Determines left (-ve) or right (+ve) offset
+                        const offsetX = offsetMultiplier * 350; // Distance to move side cards (adjust as needed)
+                        card.style.setProperty('--offset-x', `${offsetX}px`); // Set the custom CSS property for translation
+                    }
+                });
+            }
+        }
+
+        // Add event listeners to all navigation buttons
+        navButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetCard = button.dataset.target; // Get the target card ID from data-target attribute
+                showCard(targetCard); // Call showCard function
+            });
+        });
+
+        // Initialize the carousel by showing the "Addition" card on page load
+        showCard('add');
+
+        /**
+         * Calculates the sum of two numbers entered in the addition card.
+         */
+        function calculateSum() {
+            var x = parseFloat(document.getElementById("num1_add").value);
+            var y = parseFloat(document.getElementById("num2_add").value);
+            // Check if inputs are valid numbers
+            if (isNaN(x) || isNaN(y)) {
+                document.getElementById("result_add").innerHTML = "Please enter valid numbers.";
+                return;
+            }
+            var z = x + y;
+            document.getElementById("result_add").innerHTML = "The sum is: " + z;
+        }
+
+        /**
+         * Calculates the difference of two numbers entered in the subtraction card.
+         */
+        function calculateDifference() {
+            var x = parseFloat(document.getElementById("num1_sub").value);
+            var y = parseFloat(document.getElementById("num2_sub").value);
+            // Check if inputs are valid numbers
+            if (isNaN(x) || isNaN(y)) {
+                document.getElementById("result_sub").innerHTML = "Please enter valid numbers.";
+                return;
+            }
+            var z = x - y;
+            document.getElementById("result_sub").innerHTML = "The difference is: " + z;
+        }
+
+        /**
+         * Calculates the product of two numbers entered in the multiplication card.
+         */
+        function calculateProduct() {
+            var x = parseFloat(document.getElementById("num1_multi").value);
+            var y = parseFloat(document.getElementById("num2_multi").value);
+            // Check if inputs are valid numbers
+            if (isNaN(x) || isNaN(y)) {
+                document.getElementById("result_multi").innerHTML = "Please enter valid numbers.";
+                return;
+            }
+            var z = x * y;
+            document.getElementById("result_multi").innerHTML = "The product is: " + z;
+        }
+
+        /**
+         * Calculates the quotient of two numbers entered in the division card.
+         * Handles division by zero.
+         */
+        function calculateQuotient() {
+            var x = parseFloat(document.getElementById("num1_div").value);
+            var y = parseFloat(document.getElementById("num2_div").value);
+            // Check if inputs are valid numbers
+            if (isNaN(x) || isNaN(y)) {
+                document.getElementById("result_div").innerHTML = "Please enter valid numbers.";
+                return;
+            }
+            if (y !== 0) {
+                var z = x / y;
+                document.getElementById("result_div").innerHTML = "The quotient is: " + z;
+            } else {
+                document.getElementById("result_div").innerHTML = "Division by zero is not allowed.";
+            }
+        }
+
+        /**
+         * Calculates the square of a number entered in the square card.
+         */
+        function calculateSquare() {
+            var num = parseFloat(document.getElementById("num_square").value);
+            // Check if input is a valid number
+            if (isNaN(num)) {
+                document.getElementById("result_square").innerHTML = "Please enter a valid number.";
+                return;
+            }
+            var square = num * num;
+            document.getElementById("result_square").innerHTML = "The square of " + num + " is: " + square;
+        }
+    </script>
+
+</body>
+</html>
